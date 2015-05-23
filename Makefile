@@ -24,8 +24,18 @@ stdafx.h.gch: stdafx.h
 clean:
 	- rm stdafx.h.gch test_?.o *.$(ExtCompileTest) 2> /dev/null
 
-fail_0: *.hpp stdafx.h.gch test_0.cpp
-	echo **** Fail test 1 *****
-	- $(CC) $(CFLAGS) $(LIBS) test_0.cpp -o test_0.$(ExtCompileTest) -DCOMPILE_FAIL_TEST=1
-	echo **** Fail test 2 *****
-	- $(CC) $(CFLAGS) $(LIBS) test_0.cpp -o test_0.$(ExtCompileTest) -DCOMPILE_FAIL_TEST=2
+fail: *.hpp stdafx.h.gch test_2.cpp
+	@echo ===== Fail test 1 =====
+	- $(CC) $(CFLAGS) $(LIBS) test_2.cpp -o test_2.$(ExtCompileTest) -DCOMPILE_FAIL_TEST=1
+	@echo ===== Fail test 2 =====
+	- $(CC) $(CFLAGS) $(LIBS) test_2.cpp -o test_2.$(ExtCompileTest) -DCOMPILE_FAIL_TEST=2
+	@echo ===== Fail test 3 =====
+	- $(CC) $(CFLAGS) $(LIBS) test_2.cpp -o test_2.$(ExtCompileTest) -DCOMPILE_FAIL_TEST=3
+	@echo ===== Fail test 4 =====
+	- $(CC) $(CFLAGS) $(LIBS) test_2.cpp -o test_2.$(ExtCompileTest) -DCOMPILE_FAIL_TEST=4
+	@echo ===== Fail test 5 =====
+	- $(CC) $(CFLAGS) $(LIBS) test_2.cpp -o test_2.$(ExtCompileTest) -DCOMPILE_FAIL_TEST=5
+	@echo ===== Fail test 6 =====
+	- $(CC) $(CFLAGS) $(LIBS) test_2.cpp -o test_2.$(ExtCompileTest) -DCOMPILE_FAIL_TEST=6
+	@echo ===== Fail test 7 =====
+	- $(CC) $(CFLAGS) $(LIBS) test_2.cpp -o test_2.$(ExtCompileTest) -DCOMPILE_FAIL_TEST=7
