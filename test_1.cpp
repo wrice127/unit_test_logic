@@ -1,4 +1,4 @@
-// test_0.cpp written by JaeHyuk Kwak
+// test_1.cpp written by JaeHyuk Kwak
 #include "stdafx.h"
 #include "unit_test_logic.hpp"
 using namespace unit_test_logic_ns;

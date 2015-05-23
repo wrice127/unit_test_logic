@@ -1,4 +1,4 @@
-// test_0.cpp written by JaeHyuk Kwak
+// test_3.cpp written by JaeHyuk Kwak
 #include "stdafx.h"
 #include "unit_test_logic.hpp"
 

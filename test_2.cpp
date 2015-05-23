@@ -1,4 +1,4 @@
-// test_0.cpp written by JaeHyuk Kwak
+// test_2.cpp written by JaeHyuk Kwak
 #include "stdafx.h"
 #include "unit_test_logic.hpp"
 using namespace unit_test_logic_ns;
@@ -12,7 +12,7 @@ int main( int, const char ** )
 		int lvalue_inlogic = 0;
 		int lvalue = 0;
 		#define TESTING_OPERATOR ==
-		#include "test_0.operator.hpp"
+		#include "test_2.operator.hpp"
 		#undef TESTING_OPERATOR
 	} );
 	f.test_case( "Equality test; float", []
@@ -20,7 +20,7 @@ int main( int, const char ** )
 		float lvalue_inlogic = 0.f;
 		int lvalue = 0.f;
 		#define TESTING_OPERATOR ==
-		#include "test_0.operator.hpp"
+		#include "test_2.operator.hpp"
 		#undef TESTING_OPERATOR
 	} );
 	f.test_case( "Inequality test; int", []
@@ -28,7 +28,7 @@ int main( int, const char ** )
 		int lvalue_inlogic = 2;
 		int lvalue = 1;
 		#define TESTING_OPERATOR !=
-		#include "test_0.operator.hpp"
+		#include "test_2.operator.hpp"
 		#undef TESTING_OPERATOR
 	} );
 	f.test_case( "Inequality test; float", []
@@ -36,7 +36,7 @@ int main( int, const char ** )
 		float lvalue_inlogic = 2;
 		int lvalue = 1;
 		#define TESTING_OPERATOR !=
-		#include "test_0.operator.hpp"
+		#include "test_2.operator.hpp"
 		#undef TESTING_OPERATOR
 	} );
 	f.test_case( "Compare '>' test; int", []
@@ -44,7 +44,7 @@ int main( int, const char ** )
 		int lvalue_inlogic = 1;
 		int lvalue = -1;
 		#define TESTING_OPERATOR >
-		#include "test_0.operator.hpp"
+		#include "test_2.operator.hpp"
 		#undef TESTING_OPERATOR
 	} );
 	f.test_case( "Compare '>' test; float", []
@@ -52,7 +52,7 @@ int main( int, const char ** )
 		float lvalue_inlogic = 1.f;
 		int lvalue = -1;
 		#define TESTING_OPERATOR >
-		#include "test_0.operator.hpp"
+		#include "test_2.operator.hpp"
 		#undef TESTING_OPERATOR
 	} );
 	f.test_case( "Equality test bool", []
