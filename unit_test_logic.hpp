@@ -7,6 +7,7 @@ namespace unit_test_logic_ns
 	{
 		#include "unit_test_logic.test_exception.hpp"
 		#include "unit_test_logic.logic_stream.hpp"
+		#include "unit_test_logic.predicate_stream.hpp"
 		#include "unit_test_logic.test.hpp"
 	}
 	using namespace implementation_ns;
@@ -97,29 +98,16 @@ namespace unit_test_logic_ns
 		transform( in.begin(), in.end(), in.begin(), (int(*)(int)) tolower );
 		return in;
 	}
-
-	namespace implementation_ns
-	{
-		template< typename FunctionType >
-		class predicate_stream
-		{
-			typedef result_of< FunctionType > ReturnType;
-			function< FunctionType > func_;
-			ReturnType out_;
-		public:
-			predicate_stream( function< FunctionType > func )
-				: func_( func )
-			{}
-			const ReturnType out() const { return out_; }
-		};
-	}
-
 	
 	// perfect forwarding
-	//template< typename Function, typename... Args >
-	//const predicate_stream< FunctionType > predicate( Function&& f, Args&&... args )
-	//{
-	//}
+	template< typename Function, typename... Args >
+	const predicate_stream< Args... > predicate( Function&& f, Args&&... args )
+	{
+		using result_function = typename result_of< Function( Args... ) >::type;
+		static_assert( is_same< bool, result_function >::value, "Return type must be bool" );
+		const bool out = f( args... );
+		return predicate_stream< Args... >( out, "", forward< Args >( args )... );
+	}
 }
 
 #include "unit_test_logic.macro.hpp"

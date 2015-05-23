@@ -2,7 +2,6 @@
 CC=g++-4.7
 CFLAGS=-Wall -g -std=c++11
 ExtCompileTest=compile_had_to_fail
-FailTestMacro=
 
 all: test_0.o test_1.o test_2.o test_3.o
 
