@@ -101,13 +101,13 @@ namespace unit_test_logic_ns
 	namespace implementation_ns
 	{
 		template< typename FunctionType >
-		class function_stream
+		class predicate_stream
 		{
 			typedef result_of< FunctionType > ReturnType;
 			function< FunctionType > func_;
 			ReturnType out_;
 		public:
-			function_stream( function< FunctionType > func )
+			predicate_stream( function< FunctionType > func )
 				: func_( func )
 			{}
 			const ReturnType out() const { return out_; }
@@ -117,9 +117,8 @@ namespace unit_test_logic_ns
 	
 	// perfect forwarding
 	//template< typename Function, typename... Args >
-	//const function_stream< FunctionType > call( Function&& f, Args&&... args )
+	//const predicate_stream< FunctionType > predicate( Function&& f, Args&&... args )
 	//{
-		// not yet implemented
 	//}
 }
 
