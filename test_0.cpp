@@ -21,7 +21,7 @@ int main( int, const char ** )
 	{
 		test( logic( 0 ) != 1 );
 		test( logic( 0 ) != 1.f, "Forwarding different types except bool" );
-		test( ( logic( 0 ) != 1 ) != 2, "3 != 4 && 3 != 5" );
+		test( ( logic( 0 ) != 1 ) != 2, "0 != 1 && 0 != 2" );
 	} );
 	f.test_case( "Compare '>' test; simple", []
 	{
