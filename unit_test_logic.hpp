@@ -9,6 +9,7 @@ namespace unit_test_logic_ns
 		#include "unit_test_logic.logic_stream.hpp"
 		#include "unit_test_logic.predicate_stream.hpp"
 		#include "unit_test_logic.test.hpp"
+		#include "unit_test_logic.compare.hpp"
 	}
 	using namespace implementation_ns;
 
@@ -21,30 +22,44 @@ namespace unit_test_logic_ns
 		return logic_stream< Type >( in, true, "" ); // don't forward
 	}
 
-	// This macro include could be replaced with template base function.
-	// But it wasn't any easier to read.
-	#define OPERATOR_SYMBOL ==
-	#include "unit_test_logic.compare.hpp"
-	#undef OPERATOR_SYMBOL
+	#define STRINGFICATION( S ) #S
+	#define OPERATOR_SYMBOL( SYMBOL ) operator_common( lhs, forward< RHS >( rhs ), []( LHS lhs, RHS rhs ) { return lhs SYMBOL rhs; }, STRINGFICATION( SYMBOL ) )
+	template< typename LHS, typename RHS >
+	logic_stream< LHS > operator==( logic_stream< LHS > lhs, RHS &&rhs )
+	{
+		return OPERATOR_SYMBOL( == );
+	}
 
-	#define OPERATOR_SYMBOL !=
-	#include "unit_test_logic.compare.hpp"
-	#undef OPERATOR_SYMBOL
+	template< typename LHS, typename RHS >
+	logic_stream< LHS > operator!=( logic_stream< LHS > lhs, RHS &&rhs )
+	{
+		return OPERATOR_SYMBOL( != );
+	}
 
-	#define OPERATOR_SYMBOL >
-	#include "unit_test_logic.compare.hpp"
-	#undef OPERATOR_SYMBOL
+	template< typename LHS, typename RHS >
+	logic_stream< LHS > operator>( logic_stream< LHS > lhs, RHS &&rhs )
+	{
+		return OPERATOR_SYMBOL( > );
+	}
 
-	#define OPERATOR_SYMBOL >=
-	#include "unit_test_logic.compare.hpp"
-	#undef OPERATOR_SYMBOL
+	template< typename LHS, typename RHS >
+	logic_stream< LHS > operator>=( logic_stream< LHS > lhs, RHS &&rhs )
+	{
+		return OPERATOR_SYMBOL( >= );
+	}
 
-	#define OPERATOR_SYMBOL <
-	#include "unit_test_logic.compare.hpp"
-	#undef OPERATOR_SYMBOL
+	template< typename LHS, typename RHS >
+	logic_stream< LHS > operator<( logic_stream< LHS > lhs, RHS &&rhs )
+	{
+		return OPERATOR_SYMBOL( < );
+	}
 
-	#define OPERATOR_SYMBOL <=
-	#include "unit_test_logic.compare.hpp"
+	template< typename LHS, typename RHS >
+	logic_stream< LHS > operator<=( logic_stream< LHS > lhs, RHS &&rhs )
+	{
+		return OPERATOR_SYMBOL( <= );
+	}
+	#undef STRINGFICATION
 	#undef OPERATOR_SYMBOL
 
 	template< typename Type, typename... Args >
