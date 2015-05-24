@@ -59,8 +59,8 @@ namespace unit_test_logic_ns
 	{
 		return OPERATOR_SYMBOL( <= );
 	}
-	#undef STRINGFICATION
 	#undef OPERATOR_SYMBOL
+	#undef STRINGFICATION
 
 	template< typename Type, typename... Args >
 	void test( const logic_stream< Type > in, Args&&... args )
@@ -82,7 +82,7 @@ namespace unit_test_logic_ns
 		using namespace implementation_ns;
 		if ( test_must_throw_exception_r< Args... >( func ) )
 			return;
-		throw test_exception_fail( "Expected expection is not thrown" );
+		throw test_exception_fail( "Expected exception is not thrown" );
 	}
 
 	template< typename... Args >
