@@ -5,7 +5,7 @@ namespace unit_test_logic_ns
 
 	namespace implementation_ns
 	{
-		#include "unit_test_logic.test_exception.hpp"
+		#include "unit_test_logic.exception.hpp"
 		#include "unit_test_logic.logic_stream.hpp"
 		#include "unit_test_logic.predicate_stream.hpp"
 		#include "unit_test_logic.test.hpp"
@@ -18,7 +18,7 @@ namespace unit_test_logic_ns
 	const logic_stream< Type > logic( Type &&in )
 	{
 		logic_stream_static_type_check< Type >();
-		return logic_stream< Type >( forward< Type >( in ), true, "" );
+		return logic_stream< Type >( in, true, "" ); // don't forward
 	}
 
 	// This macro include could be replaced with template base function.
@@ -48,7 +48,7 @@ namespace unit_test_logic_ns
 	#undef OPERATOR_SYMBOL
 
 	template< typename Type, typename... Args >
-	void test( const logic_stream< Type > &&in, Args&&... args )
+	void test( const logic_stream< Type > in, Args&&... args )
 	{
 		if ( in.out() ) return;
 
@@ -78,35 +78,27 @@ namespace unit_test_logic_ns
 	}
 
 	template< typename... Args >
-	void test_true( bool in, Args... args )
+	void test_true( bool in, Args&&... args )
 	{
-		#define TEST_BOOL_VALUE true
-		#include "unit_test_logic.bool.hpp"
-		#undef TEST_BOOL_VALUE
+		test_boolean( true, in, args... );
 	}
 
 	template< typename... Args >
-	void test_false( bool in, Args... args )
+	void test_false( bool in, Args&&... args )
 	{
-		#define TEST_BOOL_VALUE false
-		#include "unit_test_logic.bool.hpp"
-		#undef TEST_BOOL_VALUE
+		test_boolean( false, in, args... );
 	}
 
 	template< typename... Args >
-	void test_success( Args... args )
+	void test_success( Args&&... args )
 	{
-		#define TEST_UNCONDITION_VALUE success
-		#include "unit_test_logic.uncondition.hpp"
-		#undef TEST_UNCONDITION_VALUE
+		test_unconditional< test_exception_success >( true, forward< Args >( args )... );
 	}
 
 	template< typename... Args >
-	void test_fail( Args... args )
+	void test_fail( Args&&... args )
 	{
-		#define TEST_UNCONDITION_VALUE fail
-		#include "unit_test_logic.uncondition.hpp"
-		#undef TEST_UNCONDITION_VALUE
+		test_unconditional< test_exception_fail >( false, forward< Args >( args )... );
 	}
 
 	string lowercase_string( string in )
@@ -115,26 +107,25 @@ namespace unit_test_logic_ns
 		return in;
 	}
 	
-	// perfect forwarding
 	template< typename Function, typename... Args >
-	predicate_stream< Args... > predicate( Function&& f, Args&&... args )
+	predicate_stream< Args... > predicate( Function f, Args&&... args )
 	{
-		using result_function = typename result_of< Function( Args... ) >::type;
+		using result_function = typename result_of< Function( Args&&... ) >::type;
 		static_assert( is_same< bool, result_function >::value, "Return type must be bool" );
-		const bool out = f( args... );
-		return predicate_stream< Args... >( out, forward< Args >( args )... );
+		const bool out = f( forward< Args >( args )... ); // perfect forwarding
+		return predicate_stream< Args... >( out, args... ); // don't forward
 	}
 
 	template< typename... Types, typename... Args >
-	void test_true( predicate_stream< Types... > &&in, Args&&... args )
+	void test_true( const predicate_stream< Types... > in, Args&&... args )
 	{
-		test_predicate( true, move( in ), forward< Args >( args )... );
+		test_predicate( true, in, forward< Args >( args )... );
 	}
 
 	template< typename... Types, typename... Args >
-	void test_false( predicate_stream< Types... > &&in, Args&&... args )
+	void test_false( const predicate_stream< Types... > in, Args&&... args )
 	{
-		test_predicate( false, move( in ), forward< Args >( args )... );
+		test_predicate( false, in, forward< Args >( args )... );
 	}
 }
 

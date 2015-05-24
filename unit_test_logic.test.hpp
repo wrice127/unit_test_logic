@@ -3,7 +3,7 @@ void msg_r( stringstream &ss )
 {}
 
 template< typename First, typename... Args >
-void msg_r( stringstream &ss, First first, Args... args )
+void msg_r( stringstream &ss, First first, Args&&... args )
 {
 	ss << first;
 	msg_r( ss, args... );
@@ -11,7 +11,7 @@ void msg_r( stringstream &ss, First first, Args... args )
 
 
 template< typename... Args >
-void test_boolean( bool expect, bool in, Args... args )
+void test_boolean( bool expect, bool in, Args&&... args )
 {
 	if ( expect == in ) return;
 
@@ -21,8 +21,23 @@ void test_boolean( bool expect, bool in, Args... args )
 		using namespace implementation_ns;
 		msg_r( ss, args... );
 	}
-	ss << "expected " << expect;
+	ss << "expected " << ( expect ? "true" : "false" );
 	throw test_exception_fail( ss.str() );
+}
+
+
+template< typename Exception, typename... Args >
+void test_unconditional( bool uncondition, Args&&... args )
+{
+	stringstream ss;
+	if ( constexpr size_t nArgs = sizeof...( Args ) )
+	{
+		using namespace implementation_ns;
+		msg_r( ss, args... );
+		ss << ": ";
+	}
+	ss << "unconditional " << ( uncondition ? "success" : "fail" );
+	throw Exception( ss.str() );
 }
 
 
@@ -73,7 +88,7 @@ void test_predicate( bool expected, const predicate_stream< Types... > in, Args&
 	if ( constexpr size_t nArgs = sizeof...( Args ) )
 	{
 		using namespace implementation_ns;
-		msg_r( ss, args... );
+		msg_r( ss, args... ); // do not forward args
 	}
 	ss << "expected " << expected << " with arguments( " + in.args() + " )";
 	throw test_exception_fail( ss.str() );

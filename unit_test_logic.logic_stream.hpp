@@ -10,11 +10,11 @@ void logic_stream_static_type_check()
 template< typename Type >
 class logic_stream
 {
-	const Type in_; // initial value we are testing
+	const Type &in_; // initial value we are testing
 	const bool out_; // testing result so far
 	const string msg_;
 public:
-	logic_stream( Type &&in, bool out, string msg )
+	logic_stream( const Type &in, bool out, string msg )
 		: in_( in ), out_( out ), msg_( msg )
 	{
 		logic_stream_static_type_check< Type >();

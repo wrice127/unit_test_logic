@@ -40,7 +40,7 @@ class predicate_stream
 	const bool out_;
 	const storage< Args... > args_;
 public:
-	predicate_stream( bool out, Args&&... args )
+	predicate_stream( bool out, const Args&... args )
 		: out_( out ), args_( args... )
 	{}
 	bool out() const { return out_; }
