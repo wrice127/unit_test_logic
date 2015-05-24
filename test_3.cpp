@@ -21,6 +21,10 @@ int main( int, const char ** )
 	{
 		test_true( predicate( is_same_int, 0, 0 ) );
 		test_false( predicate( is_same_int, 0, 1 ) );
+#if defined( COMPILE_FAIL_TEST ) && COMPILE_FAIL_TEST == 1
+		// return type of function for predicate must be bool
+		test_true( predicate( max_int, 0, 0 ) );
+#endif
 	} );
 
 	f.test_case_must_fail( "Predicate test; simple", []

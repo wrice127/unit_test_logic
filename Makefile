@@ -40,3 +40,5 @@ fail: *.hpp stdafx.h.gch test_2.cpp
 	@$(CC) $(CFLAGS) $(LIBS) test_2.cpp -o test_2.$(ExtCompileTest) -DCOMPILE_FAIL_TEST=6 2>&1 | $(GREP) $(assertMsg)
 	@echo ===== Fail test 7 =====
 	@$(CC) $(CFLAGS) $(LIBS) test_2.cpp -o test_2.$(ExtCompileTest) -DCOMPILE_FAIL_TEST=7 2>&1 | $(GREP) $(assertMsg)
+	@echo ===== Fail test 8 =====
+	@$(CC) $(CFLAGS) $(LIBS) test_3.cpp -o test_3.$(ExtCompileTest) -DCOMPILE_FAIL_TEST=1 2>&1 | $(GREP) $(assertMsg)
