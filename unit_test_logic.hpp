@@ -48,7 +48,7 @@ namespace unit_test_logic_ns
 	#undef OPERATOR_SYMBOL
 
 	template< typename Type, typename... Args >
-	void test( const logic_stream< Type > &&in, Args... args )
+	void test( const logic_stream< Type > &&in, Args&&... args )
 	{
 		if ( in.out() ) return;
 
@@ -77,21 +77,37 @@ namespace unit_test_logic_ns
 		test_ignore_exception_r< Args... >( func );
 	}
 
-	#define TEST_BOOL_VALUE true
-	#include "unit_test_logic.bool.hpp"
-	#undef TEST_BOOL_VALUE
+	template< typename... Args >
+	void test_true( bool in, Args... args )
+	{
+		#define TEST_BOOL_VALUE true
+		#include "unit_test_logic.bool.hpp"
+		#undef TEST_BOOL_VALUE
+	}
 
-	#define TEST_BOOL_VALUE false
-	#include "unit_test_logic.bool.hpp"
-	#undef TEST_BOOL_VALUE
+	template< typename... Args >
+	void test_false( bool in, Args... args )
+	{
+		#define TEST_BOOL_VALUE false
+		#include "unit_test_logic.bool.hpp"
+		#undef TEST_BOOL_VALUE
+	}
 
-	#define TEST_UNCONDITION_VALUE fail
-	#include "unit_test_logic.uncondition.hpp"
-	#undef TEST_UNCONDITION_VALUE
+	template< typename... Args >
+	void test_success( Args... args )
+	{
+		#define TEST_UNCONDITION_VALUE success
+		#include "unit_test_logic.uncondition.hpp"
+		#undef TEST_UNCONDITION_VALUE
+	}
 
-	#define TEST_UNCONDITION_VALUE success
-	#include "unit_test_logic.uncondition.hpp"
-	#undef TEST_UNCONDITION_VALUE
+	template< typename... Args >
+	void test_fail( Args... args )
+	{
+		#define TEST_UNCONDITION_VALUE fail
+		#include "unit_test_logic.uncondition.hpp"
+		#undef TEST_UNCONDITION_VALUE
+	}
 
 	string lowercase_string( string in )
 	{
@@ -101,12 +117,24 @@ namespace unit_test_logic_ns
 	
 	// perfect forwarding
 	template< typename Function, typename... Args >
-	const predicate_stream< Args... > predicate( Function&& f, Args&&... args )
+	predicate_stream< Args... > predicate( Function&& f, Args&&... args )
 	{
 		using result_function = typename result_of< Function( Args... ) >::type;
 		static_assert( is_same< bool, result_function >::value, "Return type must be bool" );
 		const bool out = f( args... );
-		return predicate_stream< Args... >( out, "", forward< Args >( args )... );
+		return predicate_stream< Args... >( out, forward< Args >( args )... );
+	}
+
+	template< typename... Types, typename... Args >
+	void test_true( predicate_stream< Types... > &&in, Args&&... args )
+	{
+		test_predicate( true, move( in ), forward< Args >( args )... );
+	}
+
+	template< typename... Types, typename... Args >
+	void test_false( predicate_stream< Types... > &&in, Args&&... args )
+	{
+		test_predicate( false, move( in ), forward< Args >( args )... );
 	}
 }
 
