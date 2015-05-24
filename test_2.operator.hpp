@@ -1,4 +1,4 @@
-// test_0.operator.cpp written by JaeHyuk Kwak
+// test_2.operator.cpp written by JaeHyuk Kwak
 static_assert( !is_const< decltype( lvalue_inlogic ) >::value, "lvalue_inlogic must not be const type." );
 static_assert( !is_const< decltype( lvalue ) >::value, "lvalue must not be const type." );
 
