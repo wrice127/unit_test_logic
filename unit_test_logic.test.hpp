@@ -90,6 +90,8 @@ void test_predicate( bool expected, const predicate_stream< Types... > in, Args&
 		using namespace implementation_ns;
 		msg_r( ss, args... ); // do not forward args
 	}
-	ss << "expected " << expected << " with arguments( " + in.args() + " )";
+	ss << "returned " << ( expected ? "false" : "true" );
+	ss << " but expected " << ( expected ? "true" : "false" );
+	ss << ": arguments( " + in.args() + " )";
 	throw test_exception_fail( ss.str() );
 }

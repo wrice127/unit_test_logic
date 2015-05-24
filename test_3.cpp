@@ -20,12 +20,14 @@ int main( int, const char ** )
 	f.test_case( "Predicate test; simple", []
 	{
 		test_true( predicate( is_same_int, 0, 0 ) );
-		//test_false( predicate( is_same_int, 0, 1 ) );
+		test_false( predicate( is_same_int, 0, 1 ) );
 	} );
 
 	f.test_case_must_fail( "Predicate test; simple", []
 	{
-		TEST_TRUE( predicate( is_same_int, 0, 1 ) );
+		int lhs = 0;
+		const int rhs = 1;
+		TEST_TRUE( predicate( is_same_int, lhs, rhs ) );
 	} );
 
 	f.test_case( "call test; simple", []
