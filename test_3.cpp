@@ -34,14 +34,14 @@ int main( int, const char ** )
 		TEST_TRUE( predicate( is_same_int, lhs, rhs ) );
 	} );
 
-	f.test_case( "call test; simple", []
+	f.test_case( "function_logic test; simple", []
 	{
-		//test( call( max_int, 3, 4 ) == 4 );
+		test( function_logic( max_int, 3, 4 ) == 4 );
 	} );
 
-	f.test_case_must_fail( "call test; simple", []
+	f.test_case_must_fail( "function_logic test; simple", []
 	{
-		//test( call( max_int, 3, 4 ) == 3 );
+		test( function_logic( max_int, 3, 4 ) == 3 );
 	} );
 
 	return f.failed_count();

@@ -2,13 +2,9 @@
 template< typename... >
 struct storage;
 
-template< typename Type >
-struct storage< Type >
-{
-	Type value;
-	storage( Type v ) : value( v )
-	{}
-};
+template<>
+struct storage<>
+{};
 
 template< typename Type, typename... Rest >
 struct storage< Type, Rest... > : storage< Rest... >
@@ -35,20 +31,31 @@ void storage_msg_r( stringstream &ss, storage< Type1, Type2, Rest...> s )
 }
 
 
-template< typename... Args >
+template< typename Arg >
 class predicate_stream
 {
 	const bool out_;
-	const storage< Args... > args_;
+	const Arg arg_;
 public:
-	predicate_stream( bool out, const Args&... args )
-		: out_( out ), args_( args... )
+	predicate_stream( bool out, Arg &arg )
+		: out_( out ), arg_( arg )
 	{}
 	bool out() const { return out_; }
-	string args() const
-	{
-		stringstream ss;
-		storage_msg_r( ss, args_ );
-		return ss.str();
-	}
+	Arg arg() const { return arg_; }
+};
+
+
+template< typename In, typename Arg >
+class function_logic_stream
+{
+	const logic_stream< In > ls_;
+	const Arg arg_;
+public:
+	function_logic_stream( bool out, const In &in, string msg, Arg &arg )
+		: ls_( out, in, msg ), arg_( arg )
+	{}
+	bool out() const { return ls_.out(); }
+	In in() const { return ls_.in(); }
+	string msg() const { return ls_.msg(); }
+	Arg arg() const { return arg_; }
 };

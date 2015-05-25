@@ -7,19 +7,19 @@ void logic_stream_static_type_check()
 	static_assert( !is_same< Type, const bool & >::value, "Type, 'const bool&', is not allowed on logic_stream." );
 }
 
-template< typename Type >
+template< typename In >
 class logic_stream
 {
-	const Type &in_; // initial value we are testing
 	const bool out_; // testing result so far
+	const In in_; // initial value we are testing
 	const string msg_;
 public:
-	logic_stream( const Type &in, bool out, string msg )
-		: in_( in ), out_( out ), msg_( msg )
+	logic_stream( bool out, const In &in, string msg )
+		: out_( out ), in_( in ), msg_( msg )
 	{
-		logic_stream_static_type_check< Type >();
+		logic_stream_static_type_check< In >();
 	}
-	const Type in() const { return in_; }
 	bool out() const { return out_; }
+	const In in() const { return in_; }
 	string msg() const { return msg_; }
 };

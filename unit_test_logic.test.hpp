@@ -10,10 +10,10 @@ void msg_r( stringstream &ss, First first, Args&&... args )
 }
 
 
-template< typename... Args >
-void test_boolean( bool expect, bool in, Args&&... args )
+template< bool expected, typename... Args >
+void test_boolean( bool in, Args&&... args )
 {
-	if ( expect == in ) return;
+	if ( expected == in ) return;
 
 	stringstream ss;
 	if ( constexpr size_t nArgs = sizeof...( Args ) )
@@ -21,13 +21,30 @@ void test_boolean( bool expect, bool in, Args&&... args )
 		using namespace implementation_ns;
 		msg_r( ss, args... );
 	}
-	ss << "expected " << ( expect ? "true" : "false" );
+	ss << "expected " << ( expected ? "true" : "false" );
 	throw test_exception_fail( ss.str() );
 }
 
 
-template< typename Exception, typename... Args >
-void test_unconditional( bool uncondition, Args&&... args )
+template< typename LHS, typename... Args >
+void test_logic( const LHS &in, Args&&... args )
+{
+	if ( in.out() ) return;
+
+	stringstream ss;
+	if ( constexpr size_t nArgs = sizeof...( Args ) )
+	{
+		using namespace implementation_ns;
+		msg_r( ss, args... );
+		ss << ": ";
+	}
+	ss << in.msg();
+	throw test_exception_fail( ss.str() );
+}
+
+
+template< bool success, typename Exception, typename... Args >
+void test_unconditional( Args&&... args )
 {
 	stringstream ss;
 	if ( constexpr size_t nArgs = sizeof...( Args ) )
@@ -36,7 +53,7 @@ void test_unconditional( bool uncondition, Args&&... args )
 		msg_r( ss, args... );
 		ss << ": ";
 	}
-	ss << "unconditional " << ( uncondition ? "success" : "fail" );
+	ss << "unconditional " << ( success ? "success" : "fail" );
 	throw Exception( ss.str() );
 }
 
@@ -79,8 +96,8 @@ void test_ignore_exception_r( function< void() > func )
 }
 
 
-template< typename... Types, typename... Args >
-void test_predicate( bool expected, const predicate_stream< Types... > in, Args&&... args )
+template< bool expected, typename Arg, typename... Args >
+void test_predicate( const predicate_stream< Arg > &in, Args&&... args )
 {
 	if ( expected == in.out() ) return;
 
@@ -92,6 +109,8 @@ void test_predicate( bool expected, const predicate_stream< Types... > in, Args&
 	}
 	ss << "returned " << ( expected ? "false" : "true" );
 	ss << " but expected " << ( expected ? "true" : "false" );
-	ss << ": arguments( " + in.args() + " )";
+	ss << ": arguments( ";
+	storage_msg_r( ss, in.arg() );
+	ss << " )";
 	throw test_exception_fail( ss.str() );
 }

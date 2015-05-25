@@ -8,8 +8,8 @@ namespace unit_test_logic_ns
 		#include "unit_test_logic.exception.hpp"
 		#include "unit_test_logic.logic_stream.hpp"
 		#include "unit_test_logic.predicate_stream.hpp"
+		#include "unit_test_logic.logic_compare.hpp"
 		#include "unit_test_logic.test.hpp"
-		#include "unit_test_logic.compare.hpp"
 	}
 	using namespace implementation_ns;
 
@@ -18,64 +18,73 @@ namespace unit_test_logic_ns
 	template< typename Type >
 	const logic_stream< Type > logic( Type &&in )
 	{
-		logic_stream_static_type_check< Type >();
-		return logic_stream< Type >( in, true, "" ); // don't forward
+		return logic_stream< Type >( true, in, "" ); // don't forward
 	}
-
-	#define STRINGFICATION( S ) #S
-	#define OPERATOR_SYMBOL( SYMBOL ) operator_common( lhs, forward< RHS >( rhs ), []( LHS lhs, RHS rhs ) { return lhs SYMBOL rhs; }, STRINGFICATION( SYMBOL ) )
-	template< typename LHS, typename RHS >
-	logic_stream< LHS > operator==( logic_stream< LHS > lhs, RHS &&rhs )
-	{
-		return OPERATOR_SYMBOL( == );
-	}
-
-	template< typename LHS, typename RHS >
-	logic_stream< LHS > operator!=( logic_stream< LHS > lhs, RHS &&rhs )
-	{
-		return OPERATOR_SYMBOL( != );
-	}
-
-	template< typename LHS, typename RHS >
-	logic_stream< LHS > operator>( logic_stream< LHS > lhs, RHS &&rhs )
-	{
-		return OPERATOR_SYMBOL( > );
-	}
-
-	template< typename LHS, typename RHS >
-	logic_stream< LHS > operator>=( logic_stream< LHS > lhs, RHS &&rhs )
-	{
-		return OPERATOR_SYMBOL( >= );
-	}
-
-	template< typename LHS, typename RHS >
-	logic_stream< LHS > operator<( logic_stream< LHS > lhs, RHS &&rhs )
-	{
-		return OPERATOR_SYMBOL( < );
-	}
-
-	template< typename LHS, typename RHS >
-	logic_stream< LHS > operator<=( logic_stream< LHS > lhs, RHS &&rhs )
-	{
-		return OPERATOR_SYMBOL( <= );
-	}
-	#undef OPERATOR_SYMBOL
-	#undef STRINGFICATION
 
 	template< typename Type, typename... Args >
-	void test( const logic_stream< Type > in, Args&&... args )
+	void test( const logic_stream< Type > &in, Args&&... args )
 	{
-		if ( in.out() ) return;
-
-		if ( constexpr size_t nArgs = sizeof...( Args ) )
-		{
-			stringstream ss;
-			using namespace implementation_ns;
-			msg_r( ss, args... );
-			throw test_exception_fail( ss.str() + ": " + in.msg() );
-		} else throw test_exception_fail( in.msg() );
+		test_logic( in, args... );
 	}
 
+	template< typename LHS, typename Arg, typename... Args >
+	void test( const function_logic_stream< LHS, Arg > &in, Args&&... args )
+	{
+		stringstream ss;
+		if ( constexpr size_t nArgs = sizeof...( Args ) )
+		{
+			using namespace implementation_ns;
+			msg_r( ss, args... );
+			ss << ": ";
+		}
+		ss << "arguments( ";
+		storage_msg_r( ss, in.arg() );
+		ss << " )";
+		test_logic( in, ss.str() );
+	}
+
+	template< typename... Args >
+	void test_true( bool in, Args&&... args )
+	{
+		test_boolean< true >( in, args... );
+	}
+
+	template< typename... Args >
+	void test_false( bool in, Args&&... args )
+	{
+		test_boolean< false >( in, args... );
+	}
+
+	template< typename... Args >
+	void test_success( Args&&... args )
+	{
+		test_unconditional< true, test_exception_success >( forward< Args >( args )... );
+	}
+
+	template< typename... Args >
+	void test_fail( Args&&... args )
+	{
+		test_unconditional< false, test_exception_fail >( forward< Args >( args )... );
+	}
+
+	template< typename Arg, typename... Args >
+	void test_true( const predicate_stream< Arg > &in, Args&&... args )
+	{
+		test_predicate< true >( in, forward< Args >( args )... );
+	}
+
+	template< typename Arg, typename... Args >
+	void test_false( const predicate_stream< Arg > &in, Args&&... args )
+	{
+		test_predicate< false >( in, forward< Args >( args )... );
+	}
+
+	string lowercase_string( string in )
+	{
+		transform( in.begin(), in.end(), in.begin(), (int(*)(int)) tolower );
+		return in;
+	}
+	
 	template< typename... Args >
 	void test_must_throw_exception( function< void() > func )
 	{
@@ -92,56 +101,105 @@ namespace unit_test_logic_ns
 		test_ignore_exception_r< Args... >( func );
 	}
 
-	template< typename... Args >
-	void test_true( bool in, Args&&... args )
-	{
-		test_boolean( true, in, args... );
-	}
 
-	template< typename... Args >
-	void test_false( bool in, Args&&... args )
-	{
-		test_boolean( false, in, args... );
-	}
-
-	template< typename... Args >
-	void test_success( Args&&... args )
-	{
-		test_unconditional< test_exception_success >( true, forward< Args >( args )... );
-	}
-
-	template< typename... Args >
-	void test_fail( Args&&... args )
-	{
-		test_unconditional< test_exception_fail >( false, forward< Args >( args )... );
-	}
-
-	string lowercase_string( string in )
-	{
-		transform( in.begin(), in.end(), in.begin(), (int(*)(int)) tolower );
-		return in;
-	}
-	
 	template< typename Function, typename... Args >
-	predicate_stream< Args... > predicate( Function f, Args&&... args )
+	const predicate_stream< storage< Args... > > predicate( Function f, Args&&... args )
 	{
-		using result_function = typename result_of< Function( Args&&... ) >::type;
-		static_assert( is_same< bool, result_function >::value, "Return type must be bool" );
+		using return_type = typename result_of< Function( Args&&... ) >::type;
+		static_assert( is_same< bool, return_type >::value, "Return type must be bool" );
 		const bool out = f( forward< Args >( args )... ); // perfect forwarding
-		return predicate_stream< Args... >( out, args... ); // don't forward
+		storage< Args... > arg( args... ); // don't forward
+		return predicate_stream< storage< Args... > >( out, arg );
 	}
 
-	template< typename... Types, typename... Args >
-	void test_true( const predicate_stream< Types... > in, Args&&... args )
+	template< typename Function, typename... Args >
+	const function_logic_stream< typename result_of< Function( Args&&... ) >::type, storage< Args... > > function_logic( Function f, Args&&... args )
 	{
-		test_predicate( true, in, forward< Args >( args )... );
+		using return_type = typename result_of< Function( Args&&... ) >::type;
+		static_assert( !is_same< bool, return_type >::value, "Return type should not be bool" );
+		const return_type in = f( forward< Args >( args )... ); // perfect forwarding
+		storage< Args... > arg( args... ); // don't forward
+		return function_logic_stream< return_type, storage< Args... > >( true, in, "", arg ); // don't forward
 	}
 
-	template< typename... Types, typename... Args >
-	void test_false( const predicate_stream< Types... > in, Args&&... args )
+
+	#define STRINGFICATION( S )			#S
+	#define OPERATOR_SYMBOL( SYMBOL )	operator_common( lhs, forward< RHS >( rhs ), []( const LHS &lhs, const RHS &rhs ) { return lhs SYMBOL rhs; }, STRINGFICATION( SYMBOL ) )
+	template< typename LHS, typename RHS >
+	const logic_stream< LHS > operator==( const logic_stream< LHS > &lhs, RHS &&rhs )
 	{
-		test_predicate( false, in, forward< Args >( args )... );
+		return OPERATOR_SYMBOL( == );
 	}
+
+	template< typename LHS, typename RHS >
+	const logic_stream< LHS > operator!=( const logic_stream< LHS > &lhs, RHS &&rhs )
+	{
+		return OPERATOR_SYMBOL( != );
+	}
+
+	template< typename LHS, typename RHS >
+	const logic_stream< LHS > operator>( const logic_stream< LHS > &lhs, RHS &&rhs )
+	{
+		return OPERATOR_SYMBOL( > );
+	}
+
+	template< typename LHS, typename RHS >
+	const logic_stream< LHS > operator>=( const logic_stream< LHS > &lhs, RHS &&rhs )
+	{
+		return OPERATOR_SYMBOL( >= );
+	}
+
+	template< typename LHS, typename RHS >
+	const logic_stream< LHS > operator<( const logic_stream< LHS > &lhs, RHS &&rhs )
+	{
+		return OPERATOR_SYMBOL( < );
+	}
+
+	template< typename LHS, typename RHS >
+	const logic_stream< LHS > operator<=( const logic_stream< LHS > &lhs, RHS &&rhs )
+	{
+		return OPERATOR_SYMBOL( <= );
+	}
+	#undef OPERATOR_SYMBOL
+
+	#define OPERATOR_SYMBOL( SYMBOL )	operator_common( lhs, forward< RHS >( rhs ), []( const LHS &lhs, const RHS &rhs ) { return lhs SYMBOL rhs; }, STRINGFICATION( SYMBOL ), lhs.arg() )
+	template< typename LHS, typename Arg, typename RHS >
+	const function_logic_stream< LHS, Arg > operator==( const function_logic_stream< LHS, Arg > &lhs, RHS &&rhs )
+	{
+		return OPERATOR_SYMBOL( == );
+	}
+
+	template< typename LHS, typename Arg, typename RHS >
+	const function_logic_stream< LHS, Arg > operator!=( const function_logic_stream< LHS, Arg > &lhs, RHS &&rhs )
+	{
+		return OPERATOR_SYMBOL( != );
+	}
+
+	template< typename LHS, typename Arg, typename RHS >
+	const function_logic_stream< LHS, Arg > operator>( const function_logic_stream< LHS, Arg > &lhs, RHS &&rhs )
+	{
+		return OPERATOR_SYMBOL( > );
+	}
+
+	template< typename LHS, typename Arg, typename RHS >
+	const function_logic_stream< LHS, Arg > operator>=( const function_logic_stream< LHS, Arg > &lhs, RHS &&rhs )
+	{
+		return OPERATOR_SYMBOL( >= );
+	}
+
+	template< typename LHS, typename Arg, typename RHS >
+	const function_logic_stream< LHS, Arg > operator<( const function_logic_stream< LHS, Arg > &lhs, RHS &&rhs )
+	{
+		return OPERATOR_SYMBOL( < );
+	}
+
+	template< typename LHS, typename Arg, typename RHS >
+	const function_logic_stream< LHS, Arg > operator<=( const function_logic_stream< LHS, Arg > &lhs, RHS &&rhs )
+	{
+		return OPERATOR_SYMBOL( <= );
+	}
+	#undef OPERATOR_SYMBOL
+	#undef STRINGFICATION
 }
 
 #include "unit_test_logic.macro.hpp"
