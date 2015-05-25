@@ -36,12 +36,14 @@ int main( int, const char ** )
 
 	f.test_case( "function_logic test; simple", []
 	{
-		test( function_logic( max_int, 3, 4 ) == 4 );
+		test( function_logic( max_int, 0, 1 ) == 1 );
 	} );
 
 	f.test_case_must_fail( "function_logic test; simple", []
 	{
-		test( function_logic( max_int, 3, 4 ) == 3 );
+		int lhs = 0;
+		const int rhs = 1;
+		TEST( function_logic( max_int, lhs, rhs ) == 0 );
 	} );
 
 	return f.failed_count();
