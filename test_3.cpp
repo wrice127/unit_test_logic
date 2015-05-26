@@ -12,6 +12,14 @@ int max_int( int lhs, int rhs )
 	return lhs > rhs ? lhs : rhs;
 }
 
+struct obj_max_int
+{
+	int max_int( int lhs, int rhs )
+	{
+		return lhs > rhs ? lhs : rhs;
+	}
+};
+
 int main( int, const char ** )
 {
 	using namespace unit_test_logic_ns;
@@ -44,6 +52,20 @@ int main( int, const char ** )
 		int lhs = 0;
 		const int rhs = 1;
 		TEST( function_logic( max_int, lhs, rhs ) == 0 );
+	} );
+
+	f.test_case( "member_logic test; simple", []
+	{
+		obj_max_int obj;
+		test( member_logic( &obj, &obj_max_int::max_int, 0, 1 ) == 1 );
+	} );
+
+	f.test_case_must_fail( "member_logic test; simple", []
+	{
+		obj_max_int obj;
+		int lhs = 0;
+		const int rhs = 1;
+		TEST( member_logic( &obj, &obj_max_int::max_int, lhs, rhs ) == 0 );
 	} );
 
 	return f.failed_count();

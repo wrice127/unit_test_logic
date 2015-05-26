@@ -103,7 +103,7 @@ namespace unit_test_logic_ns
 
 
 	template< typename Function, typename... Args >
-	const predicate_stream< storage< Args... > > predicate( Function f, Args&&... args )
+	const predicate_stream< storage< Args... > > predicate( Function&& f, Args&&... args )
 	{
 		using return_type = typename result_of< Function( Args&&... ) >::type;
 		static_assert( is_same< bool, return_type >::value, "Return type must be bool" );
@@ -113,7 +113,7 @@ namespace unit_test_logic_ns
 	}
 
 	template< typename Function, typename... Args >
-	const function_logic_stream< typename result_of< Function( Args&&... ) >::type, storage< Args... > > function_logic( Function f, Args&&... args )
+	const function_logic_stream< typename result_of< Function( Args&&... ) >::type, storage< Args... > > function_logic( Function&& f, Args&&... args )
 	{
 		using return_type = typename result_of< Function( Args&&... ) >::type;
 		static_assert( !is_same< bool, return_type >::value, "Return type should not be bool" );
@@ -122,6 +122,15 @@ namespace unit_test_logic_ns
 		return function_logic_stream< return_type, storage< Args... > >( true, in, "", arg ); // don't forward
 	}
 
+	template< typename Object, typename Function, typename... Args >
+	const function_logic_stream< typename result_of< Function( Object, Args&&... ) >::type, storage< Args... > > member_logic( Object *obj, Function&& f, Args&&... args )
+	{
+		using return_type = typename result_of< Function( Object, Args&&... ) >::type;
+		static_assert( !is_same< bool, return_type >::value, "Return type should not be bool" );
+		const return_type in = (obj->*f)( forward< Args >( args )... ); // perfect forwarding
+		storage< Args... > arg( args... ); // don't forward
+		return function_logic_stream< return_type, storage< Args... > >( true, in, "", arg ); // don't forward
+	}
 
 	#define STRINGFICATION( S )			#S
 	#define OPERATOR_SYMBOL( SYMBOL )	operator_common( lhs, forward< RHS >( rhs ), []( const LHS &lhs, const RHS &rhs ) { return lhs SYMBOL rhs; }, STRINGFICATION( SYMBOL ) )
