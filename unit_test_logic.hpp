@@ -10,6 +10,7 @@ namespace unit_test_logic_ns
 		#include "unit_test_logic.predicate_stream.hpp"
 		#include "unit_test_logic.logic_compare.hpp"
 		#include "unit_test_logic.test.hpp"
+		#include "unit_test_logic.value_range.hpp"
 	}
 	using namespace implementation_ns;
 
@@ -209,6 +210,39 @@ namespace unit_test_logic_ns
 	}
 	#undef OPERATOR_SYMBOL
 	#undef STRINGFICATION
+
+	value_error< double > operator"" _value_error( long double e )
+	{
+		return value_error< double >( e );
+	}
+
+	value_range< double > operator+( double v, value_error< double > e )
+	{
+		const double delta = e.error;
+		return value_range< double >( v - delta, v + delta );
+	}
+
+	value_range< double > operator*( double v, value_error< double > e )
+	{
+		const double delta = v * e.error;
+		return value_range< double >( v - delta, v + delta );
+	}
+
+	bool operator==( double lhs, value_range< double > rhs )
+	{
+		return lhs >= rhs.value_low && lhs <= rhs.value_high;
+	}
+
+	bool operator!=( double lhs, value_range< double > rhs )
+	{
+		return !( lhs == rhs );
+	}
+
+	template< typename Type >
+	ostream& operator<<( ostream& os, const value_range< Type > r )
+	{
+		return os << "[ " << r.value_low << ", " << r.value_high << " ]";
+	}
 }
 
 #include "unit_test_logic.macro.hpp"
